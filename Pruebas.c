@@ -175,8 +175,8 @@ void modificarBrujula(int giros){ //0 es derecha; 1 izquierda; 2 si es vuelta co
     }
     
 }
-  
 
+/*
 int leer(int lado, int veces){ //metodo para leer con el ultrasonico para los 3 lados.
   int retornando = 0;
   
@@ -187,14 +187,28 @@ int leer(int lado, int veces){ //metodo para leer con el ultrasonico para los 3 
   }
   
   return retornando;
-}  
+} */
+
+int leer(){ //metodo para leer con el ultrasonico para el frente. Retorna 0 si no hay nada; 1 si si
+  int retornando = 0;
+  
+  if(ping_cm(8) < 7){
+    retornando = 1;
+  }
+  
+  return retornando;
+}
+
+
+int distLeft[2], distRight[2];
+
 
 int main(int argc, char** argv)
 {
   int inf = 1;
   while(inf = 1){
     double tamanio = 125.0; //Depende del tamanio de cada "celda"
-    
+  
     int avance = 0;
     
     int giroder = 0;
@@ -215,30 +229,26 @@ int main(int argc, char** argv)
     Stack vector;
     StackNew(&vector, sizeof(int));
     
-    double printeando = ConvertTick(tamanio);
-    //printf("Printeando que la gran: %f", printeando );
-    
-    drive_speed(90,90);                //instruccion que permite que elrobot se mantenga a una velocidad constante
-    
-    pause(850);
-    
-    girar(1);
-    
-    drive_speed(90,90);                //instruccion que permite que elrobot se mantenga a una velocidad constante
+    //Aqui comienza
 
-    pause(850);
+    drive_getTicks(&distLeft[0], &distRight[0]);
+ 
+int algoDer = 1;
+int algoIzq = 1;
+int algoEnf = 0;
 
-    vuelta();
-   
-   int prueba1 = leerIzq();
-   int prueba2 = leerDer();
-   
-   print("prueba1 = %d, prueba2 = %d \n",         // <- modify
-           prueba1, prueba2);        // <- modify
-   pause(100);
-   
-   
-   }  
+    while ((algoDer == 1) && (algoIzq == 1) && (algoEnf == 0)){
+      drive_speed(90,90);
+      pause(100);
+      algoDer = leerDer();
+      algoIzq = leerIzq();
+      algoEnf = leer();
+    }
+    drive_speed(0,0);
+    //Si se sale del while, llegamos a un nodo oooo un tope
+    drive_getTicks(&distLeft[1], &distRight[1]); //Se manejo esta distancia
+
+   }
   
   /*
   // Counter for the for loops, must compile in C99 mode to allow initial declarations in for loops
