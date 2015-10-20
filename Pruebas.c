@@ -106,7 +106,7 @@ int irIzq, irDer; //Variables para el estado de los infrarojos
 //Retorna 1 si si hay algo; 0 si no.
 int leerIzq(){
   int estadoIzq = 0;
-  for(int dacVal = 0; dacVal < 160; dacVal += 8)  
+  for(int dacVal = 0; dacVal < 160; dacVal += 11)  
     {                                               
       dac_ctr(26, 0, dacVal);                      
       freqout(11, 1, 38000);                      
@@ -125,7 +125,7 @@ int leerIzq(){
 
 int leerDer(){
   int estadoDer = 0;
-  for(int dacVal = 0; dacVal < 160; dacVal += 8) 
+  for(int dacVal = 0; dacVal < 160; dacVal += 11) 
     { 
       dac_ctr(27, 1, dacVal);                      
       freqout(1, 1, 38000);
