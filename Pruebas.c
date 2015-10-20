@@ -143,35 +143,35 @@ int leerDer(){
           
 }
 
-int brujula = {0,-90,180,90}; //Nos dice los grados de giro para que se adecue el mapa cardinal
-int brujTemp = {0};
+int brujula [4] = {0,-90,180,90}; //Nos dice los grados de giro para que se adecue el mapa cardinal
+int brujTemp = 0;
 //N-O-S-E
 
 void modificarBrujula(int giros){ //0 es derecha; 1 izquierda; 2 si es vuelta completa
     if (giros==0){
-      brujTemp[0] = brujula[3];
+      brujTemp = brujula[3];
       brujula[3] = brujula[2];
       brujula[2] = brujula[1];
       brujula[1] = brujula[0];
-      brujula[0] = brujTemp[0]; 
+      brujula[0] = brujTemp; 
     }
     
     if (giros==1){
-      brujTemp[0] = brujula[0];
+      brujTemp = brujula[0];
       brujula[0] = brujula[1];
       brujula[1] = brujula[2];
       brujula[2] = brujula[3];
-      brujula[3] = brujTemp[0]; 
+      brujula[3] = brujTemp; 
     }
     
     if (giros==2){
-      brujTemp[0] = brujula[2];
+      brujTemp = brujula[2];
       brujula[2] = brujula[0];
-      brujula[0] = brujTemp[0];
+      brujula[0] = brujTemp;
       
-      brujTemp[0] = brujula[3];
+      brujTemp = brujula[3];
       brujula[3] = brujula[1];
-      brujula[1] = brujTemp[0]; 
+      brujula[1] = brujTemp; 
     }
     
 }
