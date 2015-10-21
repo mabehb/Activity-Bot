@@ -106,17 +106,17 @@ int irIzq, irDer; //Variables para el estado de los infrarojos
 //Retorna 1 si si hay algo; 0 si no.
 int leerIzq(){
   int estadoIzq = 0;
-  for(int dacVal = 0; dacVal < 160; dacVal += 11)  
+  for(int dacVal = 0; dacVal < 200; dacVal += 6)  
     {                                               
       dac_ctr(26, 0, dacVal);                      
       freqout(11, 1, 38000);                      
       irIzq += input(10);                        
     }
-  if(irIzq>15){
+  if(irIzq>30){
     estadoIzq = 0;
   }
   
-  else if(irIzq<15){
+  else if(irIzq<30){
     estadoIzq = 1;
   }
   irIzq = 0;
@@ -125,18 +125,20 @@ int leerIzq(){
 
 int leerDer(){
   int estadoDer = 0;
-  for(int dacVal = 0; dacVal < 160; dacVal += 11) 
+  for(int dacVal = 0; dacVal < 200; dacVal += 6) 
     { 
       dac_ctr(27, 1, dacVal);                      
       freqout(1, 1, 38000);
       irDer += input(2);                       
     }
-  if(irDer>15){
+  if(irDer>30){
     estadoDer = 0;
+    print("No hay pared derecha \n");
   }
   
-  else if(irDer<15){
+  else if(irDer<30){
     estadoDer = 1;
+    print("Hay pared derecha \n");
   }
   irDer = 0;
   return estadoDer;
@@ -205,7 +207,11 @@ int distLeft[2], distRight[2];
 
 int main(int argc, char** argv)
 {
+  drive_setRampStep(12);
   int inf = 1;
+  int algoDer = 1;
+  int algoIzq = 1;
+  int algoEnf = 0;
   while(inf = 1){
     double tamanio = 125.0; //Depende del tamanio de cada "celda"
   
@@ -233,9 +239,6 @@ int main(int argc, char** argv)
 
     drive_getTicks(&distLeft[0], &distRight[0]);
  
-int algoDer = 1;
-int algoIzq = 1;
-int algoEnf = 0;
 
     while ((algoDer == 1) && (algoIzq == 1) && (algoEnf == 0)){
       drive_speed(90,90);
@@ -244,10 +247,19 @@ int algoEnf = 0;
       algoIzq = leerIzq();
       algoEnf = leer();
     }
-    drive_speed(0,0);
+    
+    drive_rampStep(0,0);
     //Si se sale del while, llegamos a un nodo oooo un tope
     drive_getTicks(&distLeft[1], &distRight[1]); //Se manejo esta distancia
-
+    vuelta();
+    StackPush(&pasos, &distLeft[1]);
+    StackPush(&pasos, &distRight[1]);
+    int prueba1;
+    StackPop(&pasos, &prueba1);
+    int prueba2;
+    StackPop(&pasos, &prueba2);
+    drive_goto(prueba1, prueba2);
+    drive_rampStep(0,0);
    }
   
   /*
