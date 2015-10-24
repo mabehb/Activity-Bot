@@ -104,7 +104,7 @@ int irIzq, irDer; //Variables para el estado de los infrarojos
 
 //Metodo para revisar el estado del sensor infrarojo izquierdo
 //Retorna 1 si si hay algo; 0 si no.
-int leerIzq(){
+/*int leerIzq(){
   int estadoIzq = 0;
   for(int dacVal = 0; dacVal < 200; dacVal += 6)  
     {                                               
@@ -144,6 +144,7 @@ int leerDer(){
   return estadoDer;
           
 }
+*/
 
 int brujula [4] = {0,-90,180,90}; //Nos dice los grados de giro para que se adecue el mapa cardinal
 int brujTemp = 0;
@@ -194,13 +195,33 @@ int leer(int lado, int veces){ //metodo para leer con el ultrasonico para los 3 
 int leer(){ //metodo para leer con el ultrasonico para el frente. Retorna 0 si no hay nada; 1 si si
   int retornando = 0;
   
-  if(ping_cm(8) < 7){
+  if(ping_cm(8) < 3
+  ){
     retornando = 1;
   }
   
   return retornando;
 }
 
+int leerIzq(){ //metodo para leer con el ultrasonico para el frente. Retorna 0 si no hay nada; 1 si si
+  int retornando = 0;
+  
+  if(ping_cm(9) < 10){
+    retornando = 1;
+  }
+  
+  return retornando;
+}
+
+int leerDer(){ //metodo para leer con el ultrasonico para el frente. Retorna 0 si no hay nada; 1 si si
+  int retornando = 0;
+  
+  if(ping_cm(7) < 10){
+    retornando = 1;
+  }
+  
+  return retornando;
+}
 
 int distLeft[2], distRight[2];
 
@@ -208,20 +229,21 @@ int distLeft[2], distRight[2];
 int main(int argc, char** argv)
 {
   drive_setRampStep(12);
-  int inf = 1;
+  int inf = 1; //while
   int algoDer = 1;
   int algoIzq = 1;
   int algoEnf = 0;
+  
+  int avanzar = 5; //5 = true; 6 = false
+  int girando = 0;
+  
   while(inf = 1){
-    double tamanio = 125.0; //Depende del tamanio de cada "celda"
+    //double tamanio = 125.0; //Depende del tamanio de cada "celda"
   
     int avance = 0;
     
     int giroder = 0;
     int giroizq = 0;
-    
-    // Used to retrive the values from the stack
-    int result [4];
   
     // Stack de la cantidad de pasos que se han dado
     Stack pasos;
@@ -232,28 +254,121 @@ int main(int argc, char** argv)
     StackNew(&giros, sizeof(int));
     
     // Stack que indica hacia donde se puede girar. Guarda binarios
-    Stack vector;
-    StackNew(&vector, sizeof(int));
+    //Izquierda-Derecha-Adelante
+    Stack caminos;
+    StackNew(&caminos, sizeof(int));
     
     //Aqui comienza
 
-    drive_getTicks(&distLeft[0], &distRight[0]);
+    drive_getTicks(&distLeft[0], &distRight[0]); //distancia inicial
  
 
-    while ((algoDer == 1) && (algoIzq == 1) && (algoEnf == 0)){
-      drive_speed(90,90);
-      pause(100);
-      algoDer = leerDer();
-      algoIzq = leerIzq();
-      algoEnf = leer();
+    algoEnf = leer();
+    if (algoEnf == 0){
+      avanzar = 5; 
+      girando = 0;
+      StackPush(&giros, &girando); 
     }
+    else {
+      avanzar = 6;
+    }    
+    
+    algoDer = leerDer();
+    algoIzq = leerIzq();
+    int izquierda; 
+    int derecha;
+    
+    if((algoDer == 0) || (algoIzq == 0)){ //Si si hay paso en algun lado
+      drive_getTicks(&distLeft[1], &distRight[1]); //Se manejo esta distancia
+      StackPush(&pasos, &distLeft[1]);
+      StackPush(&pasos, &distRight[1]);
+      distLeft[0] = 0;
+      distRight[0] = 0;
+      distLeft[1] = 0;
+      distRight[1] = 0;
+      
+      
+      //Para estas variables true va a ser 7; false es 8
+
+      if (algoIzq == 0){
+        izquierda = 7;  
+      }
+      else if (algoIzq == 1){
+        izquierda = 8;
+      }
+      
+      StackPush(&caminos, &izquierda);
+      
+      if (algoDer == 0){
+        derecha = 7;  
+      }
+      else if (algoDer == 1){
+        derecha = 8;
+      }
+      
+      StackPush(&caminos, &derecha);
+  
+    }
+    
+    else {
+      izquierda = 8;
+      derecha = 8;
+      StackPush(&caminos, &izquierda);
+      StackPush(&caminos, &derecha);
+    }
+    
+    StackPush(&caminos, &avanzar);
+    
+    StackPop(&caminos, &avanzar);
+    
+    
+    
+      //adelante
+    if (avanzar == 5){
+      avanzar = 6;
+      StackPush(&caminos, &avanzar);
+      while ((algoDer == 1) && (algoIzq == 1) && (algoEnf == 0)){ //"avanzar"
+        drive_speed(90,90);
+        pause(100);
+        algoDer = leerDer();
+        algoIzq = leerIzq();
+        algoEnf = leer();
+      }
+    }
+    
+    else if (avanzar==6){
+      StackPop(&caminos, &derecha);
+      if (derecha == 7){
+        girar(0);
+        girando = 90;
+        StackPush(&giros, &girando);
+        avanzar = 
+      }    
+      else if (derecha == 8){
+        StackPop(&caminos, &izquieda);
+        girar(1);
+        girando = -90;   
+      }
+    }      
+    
+    
+    
+    
+    
+        
+    
+    
     
     drive_rampStep(0,0);
     //Si se sale del while, llegamos a un nodo oooo un tope
     drive_getTicks(&distLeft[1], &distRight[1]); //Se manejo esta distancia
-    vuelta();
+//    vuelta();
     StackPush(&pasos, &distLeft[1]);
     StackPush(&pasos, &distRight[1]);
+    
+    
+    
+    
     int prueba1;
     StackPop(&pasos, &prueba1);
     int prueba2;
@@ -316,41 +431,3 @@ int main(int argc, char** argv)
 }
 
 
-/**
-
-  Test IR Detectors.c
-
-  Test IR LEDs and IR receivers used together as object detectors.
-
-  http://learn.parallax.com/activitybot/test-ir-sensor-circuits
-
-
-#include "simpletools.h"                        // Include simpletools
-#include "abdrive.h"
-
-int irLeft, irRight;                            // Global variables
-
-int main()                                      // Main function
-{
-  low(26);                                      // D/A0 & D/A1 to 0 V
-  low(27);
-
-  while(1)                                      // Main loop
-  {
-    freqout(11, 1, 38000);                      // Left IR LED light
-    irLeft = input(10);                         // Check left IR detector
-
-    freqout(1, 1, 38000);                       // Repeat for right detector
-    irRight = input(2);
-
-   if(irRight == 1 && irLeft == 1) drive_rampStep(128, 128);
-
-    else if(irLeft == 0 && irRight == 0) drive_rampStep(-128, -128);
-    else if(irRight == 0) drive_rampStep(-128, 128);
-
-    else if(irLeft == 0) drive_rampStep(128, -128);                           // Pause before repeating
-  }
-}
-
-
-*/
