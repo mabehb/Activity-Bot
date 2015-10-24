@@ -265,12 +265,12 @@ int main(int argc, char** argv)
 
     algoEnf = leer();
     if (algoEnf == 0){
-      avanzar = 5; 
+      avanzar = 5; //true
       girando = 0;
-      StackPush(&giros, &girando); 
+      StackPush(&giros, &girando);
     }
     else {
-      avanzar = 6;
+      avanzar = 6; //false
     }    
     
     algoDer = leerDer();
@@ -278,7 +278,7 @@ int main(int argc, char** argv)
     int izquierda; 
     int derecha;
     
-    if((algoDer == 0) || (algoIzq == 0)){ //Si si hay paso en algun lado
+    if((algoDer == 0) || (algoIzq == 0)){ //Si si hay paso en algun lado / nodo
       drive_getTicks(&distLeft[1], &distRight[1]); //Se manejo esta distancia
       StackPush(&pasos, &distLeft[1]);
       StackPush(&pasos, &distRight[1]);
@@ -321,12 +321,14 @@ int main(int argc, char** argv)
     
     StackPop(&caminos, &avanzar);
     
-    
+    //listo caminos nodo
     
       //adelante
+      int avanzar2=0;
+      int derecha2 = 0;
     if (avanzar == 5){
-      avanzar = 6;
-      StackPush(&caminos, &avanzar);
+      avanzar2 = 6;
+      StackPush(&caminos, &avanzar2);
       while ((algoDer == 1) && (algoIzq == 1) && (algoEnf == 0)){ //"avanzar"
         drive_speed(90,90);
         pause(100);
@@ -337,17 +339,34 @@ int main(int argc, char** argv)
     }
     
     else if (avanzar==6){
-      StackPop(&caminos, &derecha);
+      StackPop(&caminos, &derecha); //Se saca avanzar2
+      StackPop(&caminos, &derecha); //Se saca derecha original
       if (derecha == 7){
-        girar(0);
-        girando = 90;
+        girar(1);
+        girando = -90;
+        derecha2 = 8;
+        StackPush(&caminos, &derecha2);
+        StackPush(&caminos, &avanzar2);
+        
         StackPush(&giros, &girando);
-        avanzar = 
       }    
       else if (derecha == 8){
-        StackPop(&caminos, &izquieda);
-        girar(1);
-        girando = -90;   
+        if (izquierda == 7){
+          int izquierda2 = 8;
+          StackPop(&caminos, &izquierda); //avanzar2
+          StackPop(&caminos, &izquierda); //derecha2
+          StackPop(&caminos, &izquierda); //izquierda2
+          girar(0);
+          girando = 90;
+          
+          StackPush(&giros, &girando);
+          StackPush(&caminos, &izquierda2);
+          StackPush(&caminos, &derecha2);
+          StackPush(&caminos, &avanzar2);
+        }
+        else if (izquierda ==8){
+          drive_speed(0,0);
+        }              
       }
     }      
     
@@ -359,7 +378,7 @@ int main(int argc, char** argv)
     
     
     
-    drive_rampStep(0,0);
+  /*  drive_rampStep(0,0);
     //Si se sale del while, llegamos a un nodo oooo un tope
     drive_getTicks(&distLeft[1], &distRight[1]); //Se manejo esta distancia
 //    vuelta();
@@ -375,6 +394,8 @@ int main(int argc, char** argv)
     StackPop(&pasos, &prueba2);
     drive_goto(prueba1, prueba2);
     drive_rampStep(0,0);
+    
+    */
    }
   
   /*
