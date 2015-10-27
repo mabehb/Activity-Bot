@@ -364,21 +364,45 @@ int main(int argc, char** argv)
           StackPop(&caminos, &derecha);
           StackPop(&caminos, &izquierda);
           
-          if ((enfrente==0) || (derecha == 0) ||(izquierda == 0)){
-            backtracking = 0;
+          if ((enfrente==0) || (derecha == 0) ||(izquierda == 0)){            
             if (derecha == 0){
               girar(0);
-              
+              derecha = 1;
+              StackPush(&caminos, &izquierda);
+              StackPush(&caminos, &derecha);
+              StackPush(&caminos, &enfrente);
+ 
             }
-            
-            else if (izquierda == 0){
-              girar(1);
-            }              
+            else if (derecha == 1){
+              if (izquierda == 0){
+                girar(1);
+                izquierda = 1;
+                StackPush(&caminos, &izquierda);
+                StackPush(&caminos, &derecha);
+                StackPush(&caminos, &enfrente);
+              }
+            }                          
                          
           }
           
           else { //Si es un nodo recorrido en su totalidad
-          
+         /*   StackPop(&pasos, &regreso);
+            while (regreso>0){
+              retrocediendo();
+              regreso--;
+            }  
+            
+            StackPop(&caminos, &enfrente);
+            StackPop(&caminos, &derecha);
+            StackPop(&caminos, &izquierda);
+            
+            if ((enfrente==0) || (derecha == 0) ||(izquierda == 0)){                  
+             backtracking = 0;
+            }  
+            
+            StackPush(&caminos, &izquierda);
+            StackPush(&caminos, &derecha);
+            StackPush(&caminos, &enfrente); */         
           }                                    
         } //callejon sin salida                           
       }//else            
