@@ -290,7 +290,6 @@ int main(int argc, char** argv)
       StackPush(&caminos, &algoEnf); //enfrente
       
       paso = 0;
-    }  //corchete backtracking  
          
     if (algoEnf == 0){
       avanzando();
@@ -339,7 +338,10 @@ int main(int argc, char** argv)
         } 
         else if (algoIzq == 1){ //Callejon sin salida
           backtracking=1;
-          //backtracking
+          //backtracking                                              
+        }         //callejon sin salida  
+       }  //corchete backtracking
+       if(backtracking==1){
           StackPop(&pasos, &regreso);
           while(regreso>0){
             retrocediendo();
@@ -371,7 +373,7 @@ int main(int argc, char** argv)
               StackPush(&caminos, &derecha);
               StackPush(&caminos, &enfrente);
               backtracking = 0;
- 
+   
             }
             else if (derecha == 1){
               if (izquierda == 0){
@@ -407,8 +409,8 @@ int main(int argc, char** argv)
             StackPush(&caminos, &izquierda);
             StackPush(&caminos, &derecha);
             StackPush(&caminos, &enfrente);        
-          }                                              
-        } //callejon sin salida                           
+          } //else backtracking
+        }                                        
       }//else            
     }
     
