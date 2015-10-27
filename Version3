@@ -365,24 +365,24 @@ int main(int argc, char** argv)
             if (derecha == 0){
               girar(0);
               derecha = 1;
-              //avanzando();
-              //paso++;
+              avanzando();
+              paso++;
               StackPush(&caminos, &izquierda);
               StackPush(&caminos, &derecha);
               StackPush(&caminos, &enfrente);
-              //backtracking = 0;
+              backtracking = 0;
  
             }
             else if (derecha == 1){
               if (izquierda == 0){
                 girar(1);
                 izquierda = 1;
-                //avanzando();
-                //paso++;
+                avanzando();
+                paso++;
                 StackPush(&caminos, &izquierda);
                 StackPush(&caminos, &derecha);
                 StackPush(&caminos, &enfrente);
-                //backtracking = 0;
+                backtracking = 0;
               }
             }                          
                          
@@ -394,7 +394,7 @@ int main(int argc, char** argv)
             while (regreso>0){
               retrocediendo();
               regreso--;
-            }  
+            }
             
             StackPop(&caminos, &enfrente);
             StackPop(&caminos, &derecha);
@@ -415,6 +415,8 @@ int main(int argc, char** argv)
 
     StackPush(&giros, &brujula[0]);
 
+                            
+    
   }//Corchete de while(1) 
   
   return 0;
