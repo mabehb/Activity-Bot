@@ -317,11 +317,12 @@ int main(int argc, char** argv)
         StackPush(&caminos, &derecha);        
         StackPush(&caminos, &enfrente);
       }//algoDer 0
+    }      
       
       else if (algoDer == 1){
         if (algoIzq == 0){
           girar(1);
-          girando = -90;
+          //girando = -90;
           //StackPush(&giros, &girando);
           avanzando();
           paso++;         // int enfrente;
@@ -340,7 +341,6 @@ int main(int argc, char** argv)
           backtracking=1;
         }//algoIzq 1     
       }//algoDer 1    
-     }  //algoEnf 1
    }     //backtracking 0
        if(backtracking==1){
           StackPop(&pasos, &regreso);
@@ -414,7 +414,19 @@ int main(int argc, char** argv)
             StackPop(&caminos, &derecha);
             StackPop(&caminos, &izquierda);
             
-            if ((enfrente==0) || (derecha == 0) ||(izquierda == 0)){                  
+            if ((enfrente==0) || (derecha == 0) ||(izquierda == 0)){
+             if(derecha==0){
+               girar(0);
+               avanzando();
+               paso++;
+               derecha = 1;
+             }
+             else if(derecha==1){
+               girar(1);
+               avanzando();
+               paso++;
+               izquierda = 1;
+             }                                       
              backtracking = 0;
             }  
             
