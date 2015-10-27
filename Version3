@@ -265,16 +265,13 @@ int main(int argc, char** argv)
       algoEnf = leer();
       algoDer = leerDer();
       algoIzq = leerIzq();
-      printf("DERECHA: %d \n", algoDer);
-      printf("IZQUIERDA: %d \n", algoIzq);
+
       if ((algoEnf == 0) && (algoDer == 1) && (algoIzq == 1)){
         while ((algoEnf == 0) && (algoDer == 1) && (algoIzq == 1)){
           avanzando();
           algoEnf = leer();
           algoDer = leerDer();
           algoIzq = leerIzq();  
-          printf("DERECHA: %d \n", algoDer);
-          printf("IZQUIERDA: %d \n", algoIzq);
           paso++;
         } //Corchete de While  
       }//Corchete de ((algoEnf == 0) && (algoDer == 1) && (algoIzq == 1)){
@@ -368,25 +365,32 @@ int main(int argc, char** argv)
             if (derecha == 0){
               girar(0);
               derecha = 1;
+              //avanzando();
+              //paso++;
               StackPush(&caminos, &izquierda);
               StackPush(&caminos, &derecha);
               StackPush(&caminos, &enfrente);
+              //backtracking = 0;
  
             }
             else if (derecha == 1){
               if (izquierda == 0){
                 girar(1);
                 izquierda = 1;
+                //avanzando();
+                //paso++;
                 StackPush(&caminos, &izquierda);
                 StackPush(&caminos, &derecha);
                 StackPush(&caminos, &enfrente);
+                //backtracking = 0;
               }
             }                          
                          
           }
           
           else { //Si es un nodo recorrido en su totalidad
-         /*   StackPop(&pasos, &regreso);
+            backtracking = 1;
+            StackPop(&pasos, &regreso);
             while (regreso>0){
               retrocediendo();
               regreso--;
@@ -402,8 +406,8 @@ int main(int argc, char** argv)
             
             StackPush(&caminos, &izquierda);
             StackPush(&caminos, &derecha);
-            StackPush(&caminos, &enfrente); */         
-          }                                    
+            StackPush(&caminos, &enfrente);        
+          }                                              
         } //callejon sin salida                           
       }//else            
     }
@@ -411,8 +415,6 @@ int main(int argc, char** argv)
 
     StackPush(&giros, &brujula[0]);
 
-                            
-    
   }//Corchete de while(1) 
   
   return 0;
