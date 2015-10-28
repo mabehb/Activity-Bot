@@ -153,23 +153,28 @@ int brujTemp = 0;
 void modificarBrujula(int giros){ //0 es derecha; 1 izquierda; 2 si es vuelta completa
   int retornando = 0;
     if (giros==0){
-      brujTemp = brujula[3];
+      brujula[0] = 90;
+     /* brujTemp = brujula[3];
       brujula[3] = brujula[2];
       brujula[2] = brujula[1];
       brujula[1] = brujula[0];
       brujula[0] = brujTemp; 
-      
+      */
     }
     
     if (giros==1){
+      brujula[0] = -90;
+      /*
       brujTemp = brujula[0];
       brujula[0] = brujula[1];
       brujula[1] = brujula[2];
       brujula[2] = brujula[3];
-      brujula[3] = brujTemp; 
+      brujula[3] = brujTemp; */
     }
     
     if (giros==2){
+      brujula[0] = 180;
+      /*
       brujTemp = brujula[2];
       brujula[2] = brujula[0];
       brujula[0] = brujTemp;
@@ -177,6 +182,7 @@ void modificarBrujula(int giros){ //0 es derecha; 1 izquierda; 2 si es vuelta co
       brujTemp = brujula[3];
       brujula[3] = brujula[1];
       brujula[1] = brujTemp; 
+      */
     }
     retornando = brujula[0];
     return retornando;
@@ -350,11 +356,11 @@ int main(int argc, char** argv)
           } //while>0
           
           StackPop(&giros, &giroregreso);
-          if(giroregreso == -90){
+          if(giroregreso == 90){
             girar(1);
             print("Gire a la izquierda \n");
           }         
-          else if (giroregreso == 90){
+          else if (giroregreso == -90){
             girar(0);
             print("Gire a la derecha \n");
           }          
