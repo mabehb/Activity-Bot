@@ -217,7 +217,7 @@ int leer(){ //metodo para leer con el ultrasonico para el frente. Retorna 0 si n
 int leerIzq(){ //metodo para leer con el ultrasonico para el frente. Retorna 0 si no hay nada; 1 si si
   int retornando = 0;
   
-  if(ping_cm(9) < 20){
+  if(ping_cm(9) < 25){
     retornando = 1;
   }
   
@@ -227,7 +227,7 @@ int leerIzq(){ //metodo para leer con el ultrasonico para el frente. Retorna 0 s
 int leerDer(){ //metodo para leer con el ultrasonico para el frente. Retorna 0 si no hay nada; 1 si si
   int retornando = 0;
   
-  if(ping_cm(7) < 20){
+  if(ping_cm(7) < 25){
     retornando = 1;
   }
   
@@ -345,9 +345,9 @@ int main(int argc, char** argv)
         else if (algoIzq == 1){ //Callejon sin salida
           backtracking=1;
           //Se desecha este nodo
-          /*StackPop(&caminos, &enfrente);
+          StackPop(&caminos, &enfrente);
           StackPop(&caminos, &derecha);
-          StackPop(&caminos, &izquierda);*/
+          StackPop(&caminos, &izquierda);
         }//algoIzq 1     
       }//algoDer 1    
      }  //algoEnf 1
