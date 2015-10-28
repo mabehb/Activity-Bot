@@ -1,0 +1,485 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "Stack.h"
+
+
+/*
+ * A simple generic stack implementation in c
+ *
+ * The implementation of the stack's methods
+ *
+ * File:   Stack.c
+ * Author: Fredrik Wallgren <fredrik@wallgren.me>
+ *
+ * Link: https://github.com/walle/cStack
+ *
+ * @license MIT
+ */
+
+#include <stdlib.h>
+#include <string.h>
+
+#include "simpletools.h"                      // incluir simpletools para controladores de la placa
+#include "abdrive.h"                          // Inckuir abdrive para encoders y servos
+#include "ping.h"
+
+#include "Stack.h"
+
+void StackNew(Stack* s, int elemSize)
+{
+  s->allocatedSize = 16; // Default to a stack that is 16 elements high
+  s->size = 0;
+  s->elemSize = elemSize;
+  s->elements = malloc(s->allocatedSize * s->elemSize); // Allocate the needed memory
+}
+
+void StackDestroy(Stack* s)
+{
+  free(s->elements); // Free the allocated memory
+}
+
+void StackPush(Stack* s, void* valueAddress)
+{
+  if (s->size == s->allocatedSize)
+  {
+    s->allocatedSize *= 2; // Use a doubling strategy. Every time the stack is too small, double it's size
+    s->elements = realloc(s->elements, s->allocatedSize * s->elemSize); // Reallocate the memory to the new size
+  }
+
+  void* target = (char*) s->elements + s->size * s->elemSize; // Find the memory segment where to insert the new data
+  memcpy(target, valueAddress, s->elemSize); // Copy the data from the valueAddress to target
+  s->size += 1;
+}
+
+void StackPop(Stack* s, void* returnAddress)
+{
+  if (s->size > 0)
+  {
+    s->size -= 1; // This "removes" the element, it will be overwritten the next time push is called
+    void* source = (char*) s->elements + s->size * s->elemSize; // Find the memory segment where to fetch the data from
+    memcpy(returnAddress, source, s->elemSize); // Copy the data to the returnAddress
+  }
+  // Else error!
+}
+
+void StackPeek(Stack* s, void* returnAddress)
+{
+  if (s->size > 0)
+  {
+    void* source = (char*) s->elements + (s->size - 1) * s->elemSize; // Find the memory segment where to fetch the data from
+    memcpy(returnAddress, source, s->elemSize); // Copy the data to the returnAddress
+  }
+  // Else error!
+}
+
+double ConvertTick(double tamanio){
+  double tick = tamanio/3.25; //medido en mm
+  return tick;
+} 
+
+void girar(int vuelta){
+    if(vuelta == 0){ //vuelta a la derecha
+      drive_goto(26, -25);
+      modificarBrujula(0);
+    }
+    else{ //vuelta a la izquierda 
+      drive_goto(-25, 26);
+      modificarBrujula(1); 
+    } 
+
+      
+}
+
+void vuelta(){
+      drive_goto(-25, 26);
+      drive_goto(-25, 26);
+      modificarBrujula(2);
+           
+}
+
+
+//int irIzq, irDer; //Variables para el estado de los infrarojos
+
+//Metodo para revisar el estado del sensor infrarojo izquierdo
+//Retorna 1 si si hay algo; 0 si no.
+/*int leerIzq(){
+  int estadoIzq = 0;
+  for(int dacVal = 0; dacVal < 200; dacVal += 6)  
+    {                                               
+      dac_ctr(26, 0, dacVal);                      
+      freqout(11, 1, 38000);                      
+      irIzq += input(10);                        
+    }
+  if(irIzq>30){
+    estadoIzq = 0;
+  }
+  
+  else if(irIzq<30){
+    estadoIzq = 1;
+  }
+  irIzq = 0;
+  return estadoIzq;
+}
+
+int leerDer(){
+  int estadoDer = 0;
+  for(int dacVal = 0; dacVal < 200; dacVal += 6) 
+    { 
+      dac_ctr(27, 1, dacVal);                      
+      freqout(1, 1, 38000);
+      irDer += input(2);                       
+    }
+  if(irDer>30){
+    estadoDer = 0;
+    print("No hay pared derecha \n");
+  }
+  
+  else if(irDer<30){
+    estadoDer = 1;
+    print("Hay pared derecha \n");
+  }
+  irDer = 0;
+  return estadoDer;
+          
+}
+*/
+
+int brujula [4] = {0,-90,180,90}; //Nos dice los grados de giro para que se adecue el mapa cardinal
+int brujTemp = 0;
+//N-O-S-E
+
+void modificarBrujula(int giros){ //0 es derecha; 1 izquierda; 2 si es vuelta completa
+  int retornando = 0;
+    if (giros==0){
+      brujula[0] = 90;
+     /* brujTemp = brujula[3];
+      brujula[3] = brujula[2];
+      brujula[2] = brujula[1];
+      brujula[1] = brujula[0];
+      brujula[0] = brujTemp; 
+      */
+    }
+    
+    if (giros==1){
+      brujula[0] = -90;
+      /*
+      brujTemp = brujula[0];
+      brujula[0] = brujula[1];
+      brujula[1] = brujula[2];
+      brujula[2] = brujula[3];
+      brujula[3] = brujTemp; */
+    }
+    
+    if (giros==2){
+      brujula[0] = 180;
+      /*
+      brujTemp = brujula[2];
+      brujula[2] = brujula[0];
+      brujula[0] = brujTemp;
+      
+      brujTemp = brujula[3];
+      brujula[3] = brujula[1];
+      brujula[1] = brujTemp; 
+      */
+    }
+    retornando = brujula[0];
+    return retornando;
+    
+}
+
+
+void avanzando(){
+  //drive_speed(45.0,45.0);
+  //pause(1162);
+  //drive_speed(0,0);
+  drive_goto(105,105);
+}
+
+void retrocediendo(){
+  //drive_speed(45.0,45.0);
+  //pause(1162);
+  //drive_speed(0,0);
+  drive_goto(-105,-105);
+}
+
+int leer(){ //metodo para leer con el ultrasonico para el frente. Retorna 0 si no hay nada; 1 si si
+  int retornando = 0;
+  
+  if(ping_cm(8) < 20){
+    retornando = 1;
+  }
+  
+  return retornando;
+}
+
+int leerIzq(){ //metodo para leer con el ultrasonico para el frente. Retorna 0 si no hay nada; 1 si si
+  int retornando = 0;
+  
+  if(ping_cm(9) < 25){
+    retornando = 1;
+  }
+  
+  return retornando;
+}
+
+int leerDer(){ //metodo para leer con el ultrasonico para el frente. Retorna 0 si no hay nada; 1 si si
+  int retornando = 0;
+  
+  if(ping_cm(7) < 25){
+    retornando = 1;
+  }
+  
+  return retornando;
+}
+
+int distLeft[2], distRight[2];
+
+int algoEnf;
+int algoDer;
+int algoIzq;
+int girando;
+int backtracking=0;
+int paso = 0;
+int regreso = 0;
+int giroregreso = 0;
+int regresoEnf, regresoIzq, regresoDer;
+
+int derecha, izquierda, enfrente, atras;
+
+int main(int argc, char** argv)
+{
+  
+   // Stack de la cantidad de pasos que se han dado
+   Stack pasos;
+   StackNew(&pasos, sizeof(int));
+    
+   // Stack de la cantidad de giros para ver a donde regresar
+   Stack giros;
+   StackNew(&giros, sizeof(int));
+    
+   // Stack que indica hacia donde se puede girar. Guarda binarios
+   //Izquierda-Derecha-Adelante
+   Stack caminos;
+   StackNew(&caminos, sizeof(int));
+   
+   drive_getTicks(&distLeft[0], &distRight[0]); //distancia inicial
+   
+  while (1){
+    if(backtracking==0){
+      algoEnf = leer();
+      algoDer = leerDer();
+      algoIzq = leerIzq();
+
+      if ((algoEnf == 0) && (algoDer == 1) && (algoIzq == 1)){
+        while ((algoEnf == 0) && (algoDer == 1) && (algoIzq == 1)){
+          avanzando();
+          algoEnf = leer();
+          algoDer = leerDer();
+          algoIzq = leerIzq();  
+          paso++;
+        } //Corchete de While  
+      }//Corchete de ((algoEnf == 0) && (algoDer == 1) && (algoIzq == 1)){
+        
+        //Aqui ya es un nodo
+        
+      algoEnf = leer();
+      algoDer = leerDer();
+      algoIzq = leerIzq();
+      
+      //print("Enfrente: %d, Derecha %d, Izquierda %d", algoEnf, algoDer, algoIzq);
+      
+      StackPush(&pasos, &paso); //push de cuantos pasos se han hecho hasta llegar a un nodo
+      
+      
+      StackPush(&caminos, &algoIzq); //lado izquierdo
+      StackPush(&caminos, &algoDer); //lado derecho
+      StackPush(&caminos, &algoEnf); //enfrente
+      
+      paso = 0;
+         
+    if (algoEnf == 0){
+      avanzando();
+      paso++;
+      
+      //int enfrente;
+      StackPop(&caminos, &enfrente);
+      enfrente = 1;
+      StackPush(&caminos, &enfrente);
+    }//algoEnf 0
+    
+    else if(algoEnf == 1){
+      drive_speed(0,0); //-------------creo que esta de mas porque ya lo para el goto
+      if(algoDer == 0){
+        girar(0);
+        //girando = 90;
+        //StackPush(&giros, &girando);
+        avanzando();
+        paso++;        //int enfrente;
+        StackPop(&caminos, &enfrente);
+        //int derecha;
+        StackPop(&caminos, &derecha);
+        derecha = 1;
+        
+        StackPush(&caminos, &derecha);        
+        StackPush(&caminos, &enfrente);
+      }//algoDer 0
+      
+      else if (algoDer == 1){
+        if (algoIzq == 0){
+          girar(1);
+          girando = -90;
+          //StackPush(&giros, &girando);
+          avanzando();
+          paso++;         // int enfrente;
+          StackPop(&caminos, &enfrente);
+         // int derecha;
+          StackPop(&caminos, &derecha);
+          //int izquierda;
+          StackPop(&caminos, &izquierda);
+          izquierda = 1;          
+          
+          StackPush(&caminos, &izquierda);        
+          StackPush(&caminos, &derecha);  
+          StackPush(&caminos, &enfrente);                
+        } //algoIzq 0
+        else if (algoIzq == 1){ //Callejon sin salida
+          backtracking=1;
+          //Se desecha este nodo
+          StackPop(&caminos, &enfrente);
+          StackPop(&caminos, &derecha);
+          StackPop(&caminos, &izquierda);
+        }//algoIzq 1     
+      }//algoDer 1    
+     }  //algoEnf 1
+   }     //backtracking 0
+   /****************************BACKTRACKING**************************************/
+       if(backtracking==1){
+         print("Estoy haciendo backtracking");
+          StackPop(&pasos, &regreso);
+          while(regreso>0){
+            retrocediendo();
+            regreso--;
+          } //while>0
+          
+         /* StackPop(&giros, &giroregreso);
+          if(giroregreso == 90){
+            girar(1);
+            print("Gire a la izquierda \n");
+          }         
+          else if (giroregreso == -90){
+            girar(0);
+            print("Gire a la derecha \n");
+          }          
+          else if (giroregreso == 180){
+            vuelta();
+            print("Di una vuelta\n");
+          }  */
+          
+          StackPop(&caminos, &enfrente);
+          StackPop(&caminos, &derecha);
+          StackPop(&caminos, &izquierda);
+          
+          print("Enfrente: %d - Derecha: %d - Izquierda: %d \n", enfrente, derecha, izquierda);
+          
+          if ((enfrente==0) || (derecha == 0) ||(izquierda == 0)){ 
+          
+          //Added
+         /*   StackPop(&giros, &giroregreso);
+            if(giroregreso == 90){
+              girar(1);
+              print("Gire a la izquierda \n");
+            }         
+            else if (giroregreso == -90){
+              girar(0);
+              print("Gire a la derecha \n");
+            }          
+            else if (giroregreso == 180){
+              vuelta();
+              print("Di una vuelta\n");
+            }  */
+            //Ends added
+
+
+      
+                 
+            if (derecha == 0){
+              girar(0);
+              derecha = 1;
+              avanzando();
+              paso++;
+              StackPush(&caminos, &izquierda);
+              StackPush(&caminos, &derecha);
+              StackPush(&caminos, &enfrente);
+              backtracking = 0;
+   
+            }//derecha 0
+            else if (derecha == 1){
+              if (izquierda == 0){
+                girar(1);
+                izquierda = 1;
+                avanzando();
+                paso++;
+                StackPush(&caminos, &izquierda);
+                StackPush(&caminos, &derecha);
+                StackPush(&caminos, &enfrente);
+                backtracking = 0;
+              }//izquierda 0
+            }    //  derecha 1                    
+                         
+          }//if derecha izquierda enfrente 0
+          
+          else if ((enfrente==1) && (derecha==1) && (izquierda==1)){ //Si es un nodo recorrido en su totalidad
+            StackPop(&giros, &giroregreso);
+            if(giroregreso == 90){
+              girar(1);
+              //print("Gire a la izquierda \n");
+            }         
+            else if (giroregreso == -90){
+              girar(0);
+             // print("Gire a la derecha \n");
+            }          
+            else if (giroregreso == 180){
+              vuelta();
+             // print("Di una vuelta\n");
+            }  
+          
+            //backtracking = 1;
+           /* StackPop(&pasos, &regreso);
+            while (regreso>0){
+              retrocediendo();
+              regreso--;
+            }
+              
+            StackPop(&giros, &giroregreso);
+            if(giroregreso == -90){
+              girar(1);
+            }         
+            else if (giroregreso == 90){
+              girar(0);
+            }          
+            else if (giroregreso == 180){
+              vuelta();
+            } 
+            
+            StackPop(&caminos, &enfrente);
+            StackPop(&caminos, &derecha);
+            StackPop(&caminos, &izquierda);
+            
+            if ((enfrente==0) || (derecha == 0) ||(izquierda == 0)){                  
+             backtracking = 0;
+            }  
+            
+            StackPush(&caminos, &izquierda);
+            StackPush(&caminos, &derecha);
+            StackPush(&caminos, &enfrente);    */    
+          } //else 
+        }    //backtracking 1                                   
+   
+    StackPush(&giros, &brujula[0]);                    
+    
+  }//Corchete de while(1) 
+  
+  return 0;
+}  
