@@ -344,10 +344,15 @@ int main(int argc, char** argv)
         } //algoIzq 0
         else if (algoIzq == 1){ //Callejon sin salida
           backtracking=1;
+          //Se desecha este nodo
+          /*StackPop(&caminos, &enfrente);
+          StackPop(&caminos, &derecha);
+          StackPop(&caminos, &izquierda);*/
         }//algoIzq 1     
       }//algoDer 1    
      }  //algoEnf 1
    }     //backtracking 0
+   /****************************BACKTRACKING**************************************/
        if(backtracking==1){
           StackPop(&pasos, &regreso);
           while(regreso>0){
@@ -355,7 +360,7 @@ int main(int argc, char** argv)
             regreso--;
           } //while>0
           
-          StackPop(&giros, &giroregreso);
+         /* StackPop(&giros, &giroregreso);
           if(giroregreso == 90){
             girar(1);
             print("Gire a la izquierda \n");
@@ -367,16 +372,34 @@ int main(int argc, char** argv)
           else if (giroregreso == 180){
             vuelta();
             print("Di una vuelta\n");
-          }  
+          }  */
           
           StackPop(&caminos, &enfrente);
           StackPop(&caminos, &derecha);
           StackPop(&caminos, &izquierda);
           
-          //print("Enfrente: %d - Derecha: %d - Izquierda: %d \n", enfrente, derecha, izquierda);
+          print("Enfrente: %d - Derecha: %d - Izquierda: %d \n", enfrente, derecha, izquierda);
           
           if ((enfrente==0) || (derecha == 0) ||(izquierda == 0)){ 
+          
+          //Added
+         /*   StackPop(&giros, &giroregreso);
+            if(giroregreso == 90){
+              girar(1);
+              print("Gire a la izquierda \n");
+            }         
+            else if (giroregreso == -90){
+              girar(0);
+              print("Gire a la derecha \n");
+            }          
+            else if (giroregreso == 180){
+              vuelta();
+              print("Di una vuelta\n");
+            }  */
+            //Ends added
 
+
+      
                  
             if (derecha == 0){
               girar(0);
@@ -405,16 +428,19 @@ int main(int argc, char** argv)
           }//if derecha izquierda enfrente 0
           
           else if ((enfrente==1) && (derecha==1) && (izquierda==1)){ //Si es un nodo recorrido en su totalidad
-           /* StackPop(&giros, &giroregreso);
-            if(giroregreso == -90){
+            StackPop(&giros, &giroregreso);
+            if(giroregreso == 90){
               girar(1);
+              print("Gire a la izquierda \n");
             }         
-            else if (giroregreso == 90){
+            else if (giroregreso == -90){
               girar(0);
+              print("Gire a la derecha \n");
             }          
             else if (giroregreso == 180){
               vuelta();
-            } */
+              print("Di una vuelta\n");
+            }  
           
             //backtracking = 1;
            /* StackPop(&pasos, &regreso);
